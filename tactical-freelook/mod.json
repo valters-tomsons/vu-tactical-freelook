@@ -1,0 +1,15 @@
+{
+    "Name": "tactical-freelook",
+    "Authors": [
+        "faith"
+    ],
+    "Description": "Move your head independently of your body.",
+    "Version": "1.0.0",
+    "HasVeniceEXT": true,
+    "Tags": [
+        "freelook"
+    ],
+    "Dependencies": {
+        "veniceext": "^1.0.0"
+    }
+}
