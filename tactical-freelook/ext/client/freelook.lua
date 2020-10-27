@@ -88,11 +88,13 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 	if self._useFreelook then
 		player:EnableInput(EntryInputActionEnum.EIAYaw, false)
 		player:EnableInput(EntryInputActionEnum.EIAPitch, false)
+		self:_hideHead(true)
 		self:_takeControl();
 	else
 		self:_releaseControl();
 		player:EnableInput(EntryInputActionEnum.EIAYaw, true)
 		player:EnableInput(EntryInputActionEnum.EIAPitch, true)
+		self:_hideHead(false)
 	end
 
 	if self._useFreelook then
@@ -121,6 +123,33 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 			self._freeCamYaw = self._freeCamYaw - self._maxYaw
 		end
 
+	end
+end
+
+function Freelook:_hideHead(hide)
+	local player = PlayerManager:GetLocalPlayer()
+
+	if player == nil then
+		return
+	end
+
+	if player.soldier == nil then
+		return
+	end
+
+	local headScale = 0.0
+
+	if hide == true then
+		headScale = 0.2
+	else
+		headScale = 1.0
+	end
+
+	local transformQuat = player.soldier.ragdollComponent:GetLocalTransform(45)
+
+	if transformQuat ~= nil then
+		transformQuat.transAndScale.w = headScale
+		player.soldier.ragdollComponent:SetLocalTransform(45, transformQuat)
 	end
 end
 
