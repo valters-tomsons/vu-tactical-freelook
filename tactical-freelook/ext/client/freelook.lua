@@ -32,7 +32,7 @@ function Freelook:__init()
 
 	Hooks:Install('Input:PreUpdate', 100, self, self._onInputPreUpdate)
 	Events:Subscribe('Engine:Update', self, self._onUpdate)
-	-- Events:Subscribe('Level:Destroy', self, self._onLevelDestroy)
+	Events:Subscribe('Level:Destroy', self, self._onLevelDestroy)
 end
 
 function Freelook:enable()
@@ -66,6 +66,20 @@ function Freelook:_releaseControl()
 	if self._entity ~= nil then
 		self._entity:FireEvent('ReleaseControl')
 	end
+end
+
+function Freelook:_onLevelDestroy()
+	self._releaseControl()
+
+	if self._entity == nil then
+		return
+	end
+
+	-- Destroy the camera entity.
+	self._entity:Destroy()
+	self._entity = nil
+	self._freeCamPos = nil
+	self._useFreelook = nil
 end
 
 function Freelook:_onInputPreUpdate(hook, cache, dt)
