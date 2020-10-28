@@ -112,15 +112,22 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 		end
 
 		local rotateYaw = cache[InputConceptIdentifiers.ConceptYaw] * self._rotationSpeed
+
+		local minYaw = rotateYaw - (math.pi / 2)
+		local maxYaw = rotateYaw + (math.pi * 2)
+
 		self._freeCamYaw = self._freeCamYaw + rotateYaw
 
+		local color = new Vec4()
+		DebugRenderer:DrawText2D(30, 30, self._freeCamYaw, )
+
 		-- Limit the yaw
-		while self._freeCamYaw < self._minYaw do
-			self._freeCamYaw = self._twoPi + self._minYaw
+		while self._freeCamYaw < minYaw do
+			self._freeCamYaw = minYaw
 		end
 
-		while self._freeCamYaw > self._maxYaw do
-			self._freeCamYaw = self._freeCamYaw - self._maxYaw
+		while self._freeCamYaw > maxYaw do
+			self._freeCamYaw = maxYaw
 		end
 
 	end
