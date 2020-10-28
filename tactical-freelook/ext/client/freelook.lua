@@ -169,7 +169,6 @@ function Freelook:_hideHead(hide)
 
 	local transformQuat = player.soldier.ragdollComponent:GetLocalTransform(45)
 
-
 	if transformQuat ~= nil then
 		transformQuat.transAndScale.w = headScale
 		player.soldier.ragdollComponent:SetLocalTransform(45, transformQuat)
@@ -189,13 +188,9 @@ function Freelook:_onUpdate(delta, simDelta)
 		return
 	end
 
-	local yaw = self._freeCamYaw
-	local pitch = self._freeCamPitch
-
-
 	-- Fix angles so we're looking at the right thing.
-	yaw = yaw - math.pi / 2
-	pitch = pitch + math.pi / 2
+	local yaw = self._freeCamYaw - math.pi / 2
+	local pitch = self._freeCamPitch + math.pi / 2
 
 	local playerHeadQuat = player.soldier.ragdollComponent:GetInterpolatedWorldTransform(46)
 	local headTransform = playerHeadQuat.transAndScale
