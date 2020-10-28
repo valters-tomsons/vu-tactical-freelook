@@ -11,8 +11,8 @@ function Freelook:__init()
 	self._fov = 75
 
 	self._standingHeight = 1.525
-	self._crouchHeight = 1.255
-	self._proneHeight = 0.65
+	self._crouchHeight = 1.175
+	self._proneHeight = 0.35
 
 	-- These exactly match the vertical soldier aiming angles
 	self._minPitch = -70.0 * (math.pi / 180.0)
@@ -195,7 +195,21 @@ function Freelook:_onUpdate(delta, simDelta)
 	local distance = 0.225
 	local horizontalOffset = 0.025
 
-	local height = 1.525
+	local height = 0.0
+
+	if player.soldier.pendingPose == 0 then
+		height = self._standingHeight
+		distance = 0.225
+		horizontalOffset = 0.025
+	elseif player.soldier.pendingPose == 1 then
+		height = self._crouchHeight
+		distance = 0.1
+		horizontalOffset = 0.025
+	elseif player.soldier.pendingPose == 2 then
+		height = self._proneHeight
+		distance = 0.2
+		horizontalOffset = 0
+	end
 
 	self._freeCamPos = player.soldier.transform.trans:Clone()
 
