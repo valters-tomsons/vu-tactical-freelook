@@ -5,17 +5,18 @@ function Freelook:__init()
 	self._freelookKey = InputDeviceKeys.IDK_LeftAlt
 
 	self._twoPi = math.pi * 2
+	self._halfPi = math.pi / 2
+
 	self._rotationSpeed = 1.916686
 	self._fov = 75
 
-	-- These exactly match the min / max soldier aiming angles
-	-- and should probably not be changed.
+	self._standingHeight = 1.525
+	self._crouchHeight = 1.255
+	self._proneHeight = 0.65
+
+	-- These exactly match the vertical soldier aiming angles
 	self._minPitch = -70.0 * (math.pi / 180.0)
 	self._maxPitch = 85.0 * (math.pi / 180.0)
-
-	-- Limit yaw to shoulders
-	self._minYaw = 0
-	self._maxYaw = self._twoPi
 
 	self._freeCamYaw = 0.0
 	self._freeCamPitch = 0.0
@@ -68,10 +69,13 @@ function Freelook:_releaseControl()
 end
 
 function Freelook:_onInputPreUpdate(hook, cache, dt)
-	-- Don't do anything if the camera is not active.
 	local player = PlayerManager:GetLocalPlayer()
 
 	if player == nil then
+		return
+	end
+
+	if not player.alive then
 		return
 	end
 
@@ -111,10 +115,9 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 
 	if self._useFreelook then
 
+		-- Limit Pitch
 		local rotatePitch = cache[InputConceptIdentifiers.ConceptPitch] * self._rotationSpeed
 		self._freeCamPitch = self._freeCamPitch + rotatePitch
-
-		-- Limit the pitch
 		if self._freeCamPitch > self._maxPitch then
 			self._freeCamPitch = self._maxPitch
 		end
@@ -123,17 +126,13 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 			self._freeCamPitch = self._minPitch
 		end
 
+		-- Limit Yaw
 		local rotateYaw = cache[InputConceptIdentifiers.ConceptYaw] * self._rotationSpeed
-
-		local minYaw = rotateYaw - (math.pi / 2)
-		local maxYaw = rotateYaw + (math.pi * 2)
-
 		self._freeCamYaw = self._freeCamYaw + rotateYaw
 
-		local minYaw = self._authoritativeYaw - (math.pi / 2)
-		local maxYaw = self._authoritativeYaw + (math.pi / 2)
+		local minYaw = self._authoritativeYaw - self._halfPi
+		local maxYaw = self._authoritativeYaw + self._halfPi
 
-		-- Limit the yaw
 		while self._freeCamYaw < minYaw do
 			self._freeCamYaw = minYaw
 		end
@@ -159,7 +158,7 @@ function Freelook:_hideHead(hide)
 	local headScale = 0.0
 
 	if hide == true then
-		headScale = 0.2
+		headScale = 0.0
 	else
 		headScale = 1.0
 	end
@@ -194,7 +193,8 @@ function Freelook:_onUpdate(delta, simDelta)
 	pitch = pitch + math.pi / 2
 
 	local distance = 0.225
-	local horizontalOffset = 0.1
+	local horizontalOffset = 0.025
+
 	local height = 1.525
 
 	self._freeCamPos = player.soldier.transform.trans:Clone()
