@@ -21,6 +21,9 @@ function Freelook:__init()
 	self._freeCamPitch = 0.0
 	self._freeCamPos = nil
 
+	self._lockYaw = false
+	self._authoritativeYaw = 0.0
+
 	self._useFreelook = false
 
 	self._data = nil
@@ -88,12 +91,21 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 	if self._useFreelook then
 		player:EnableInput(EntryInputActionEnum.EIAYaw, false)
 		player:EnableInput(EntryInputActionEnum.EIAPitch, false)
+
+		if not self._lockYaw then
+			self._authoritativeYaw = self._freeCamYaw
+			self._lockYaw = true
+		end
+
 		self:_hideHead(true)
 		self:_takeControl();
 	else
 		self:_releaseControl();
 		player:EnableInput(EntryInputActionEnum.EIAYaw, true)
 		player:EnableInput(EntryInputActionEnum.EIAPitch, true)
+
+		self._lockYaw = false
+
 		self:_hideHead(false)
 	end
 
@@ -118,8 +130,8 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 
 		self._freeCamYaw = self._freeCamYaw + rotateYaw
 
-		local color = new Vec4()
-		DebugRenderer:DrawText2D(30, 30, self._freeCamYaw, )
+		local minYaw = self._authoritativeYaw - (math.pi / 2)
+		local maxYaw = self._authoritativeYaw + (math.pi / 2)
 
 		-- Limit the yaw
 		while self._freeCamYaw < minYaw do
