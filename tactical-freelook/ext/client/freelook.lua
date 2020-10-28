@@ -10,10 +10,6 @@ function Freelook:__init()
 	self._rotationSpeed = 1.916686
 	self._fov = 75
 
-	self._standingHeight = 1.525
-	self._crouchHeight = 1.175
-	self._proneHeight = 0.35
-
 	-- These exactly match the vertical soldier aiming angles
 	self._minPitch = -70.0 * (math.pi / 180.0)
 	self._maxPitch = 85.0 * (math.pi / 180.0)
@@ -169,15 +165,10 @@ function Freelook:_hideHead(hide)
 		return
 	end
 
-	local headScale = 0.0
-
-	if hide == true then
-		headScale = 0.0
-	else
-		headScale = 1.0
-	end
+	local headScale = (hide and 0.0 or 1.0) 
 
 	local transformQuat = player.soldier.ragdollComponent:GetLocalTransform(45)
+
 
 	if transformQuat ~= nil then
 		transformQuat.transAndScale.w = headScale
@@ -206,32 +197,10 @@ function Freelook:_onUpdate(delta, simDelta)
 	yaw = yaw - math.pi / 2
 	pitch = pitch + math.pi / 2
 
-	local distance = 0.225
-	local horizontalOffset = 0.025
-
-	local height = 0.0
-
-	if player.soldier.pendingPose == 0 then
-		height = self._standingHeight
-		distance = 0.225
-		horizontalOffset = 0.025
-	elseif player.soldier.pendingPose == 1 then
-		height = self._crouchHeight
-		distance = 0.1
-		horizontalOffset = 0.025
-	elseif player.soldier.pendingPose == 2 then
-		height = self._proneHeight
-		distance = 0.2
-		horizontalOffset = 0
-	end
-
-	self._freeCamPos = player.soldier.transform.trans:Clone()
-
-	-- Move camera forward
-	self._freeCamPos = self._freeCamPos + (player.soldier.worldTransform.forward * distance)
-	self._freeCamPos = self._freeCamPos - (player.soldier.worldTransform.left * horizontalOffset)
-	-- Set camera height
-	self._freeCamPos.y = self._freeCamPos.y + height
+	local playerHeadQuat = player.soldier.ragdollComponent:GetInterpolatedWorldTransform(46)
+	local headTransform = playerHeadQuat.transAndScale
+	
+	self._freeCamPos = Vec3(headTransform.x, headTransform.y, headTransform.z)
 
 	-- Calculate where our camera has to be base on the angles.
 	local cosfi = math.cos(yaw)
