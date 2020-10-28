@@ -193,6 +193,11 @@ function Freelook:_onUpdate(delta, simDelta)
 	local pitch = self._freeCamPitch + math.pi / 2
 
 	local playerHeadQuat = player.soldier.ragdollComponent:GetInterpolatedWorldTransform(46)
+
+	if playerHeadQuat == nil then
+		return
+	end
+
 	local headTransform = playerHeadQuat.transAndScale
 	
 	self._freeCamPos = Vec3(headTransform.x, headTransform.y, headTransform.z)
