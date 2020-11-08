@@ -8,7 +8,7 @@ function Freelook:__init()
 	self._halfPi = math.pi / 2
 
 	self._rotationSpeed = 1.916686
-	self._fov = 77
+	self._fov = 75.5
 
 	self._heightOffset = 0.12
 	self._frontOffset = 0.05
