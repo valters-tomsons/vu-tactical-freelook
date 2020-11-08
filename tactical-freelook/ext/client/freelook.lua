@@ -8,7 +8,11 @@ function Freelook:__init()
 	self._halfPi = math.pi / 2
 
 	self._rotationSpeed = 1.916686
-	self._fov = 75
+	self._fov = 77
+
+	self._heightOffset = 0.12
+	self._frontOffset = 0.05
+	self._horizontalOffset = 0.05
 
 	-- Limit camera by vertical axis
 	self._minPitch = -50.0 * (math.pi / 180.0)
@@ -200,8 +204,7 @@ function Freelook:_onUpdate(delta, simDelta)
 
 	local headTransform = playerHeadQuat.transAndScale
 
-	self._freeCamPos = Vec3(headTransform.x, headTransform.y + 0.05, headTransform.z)
-	self._freeCamPos = self._freeCamPos + (player.soldier.worldTransform.forward * 0.05)
+	self._freeCamPos = Vec3(headTransform.x, headTransform.y + self._heightOffset, headTransform.z) + (player.soldier.worldTransform.forward * self._frontOffset) + (player.soldier.worldTransform.left * self._horizontalOffset)
 
 	-- Calculate where our camera has to be base on the angles.
 	local cosfi = math.cos(yaw)
