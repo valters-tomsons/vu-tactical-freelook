@@ -111,16 +111,16 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 			self._lockYaw = true
 		end
 
+
 		self:_hideHead(true)
 		self:_takeControl();
 	else
+		self._lockYaw = false
 		self:_releaseControl();
+		self:_hideHead(false)
+
 		player:EnableInput(EntryInputActionEnum.EIAYaw, true)
 		player:EnableInput(EntryInputActionEnum.EIAPitch, true)
-
-		self._lockYaw = false
-
-		self:_hideHead(false)
 	end
 
 	if self._useFreelook then
@@ -220,8 +220,8 @@ function Freelook:_onUpdate(delta, simDelta)
 
 end
 
-if g_FreelookCamera == nil then
-	g_FreelookCamera = Freelook()
+if G_freelookCamera == nil then
+	G_freelookCamera = Freelook()
 end
 
-return g_FreelookCamera
+return G_freelookCamera
