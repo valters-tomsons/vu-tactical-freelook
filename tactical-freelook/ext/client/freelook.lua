@@ -199,8 +199,9 @@ function Freelook:_onUpdate(delta, simDelta)
 	end
 
 	local headTransform = playerHeadQuat.transAndScale
-	
-	self._freeCamPos = Vec3(headTransform.x, headTransform.y, headTransform.z)
+
+	self._freeCamPos = Vec3(headTransform.x, headTransform.y + 0.05, headTransform.z)
+	self._freeCamPos = self._freeCamPos + (player.soldier.worldTransform.forward * 0.05)
 
 	-- Calculate where our camera has to be base on the angles.
 	local cosfi = math.cos(yaw)
