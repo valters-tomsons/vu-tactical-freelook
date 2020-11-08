@@ -10,9 +10,9 @@ function Freelook:__init()
 	self._rotationSpeed = 1.916686
 	self._fov = 75
 
-	-- These exactly match the vertical soldier aiming angles
-	self._minPitch = -70.0 * (math.pi / 180.0)
-	self._maxPitch = 85.0 * (math.pi / 180.0)
+	-- Limit camera by vertical axis
+	self._minPitch = -50.0 * (math.pi / 180.0)
+	self._maxPitch = 80.0 * (math.pi / 180.0)
 
 	self._freeCamYaw = 0.0
 	self._freeCamPitch = 0.0
