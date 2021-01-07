@@ -8,7 +8,6 @@ function Freelook:__init()
 	self._halfPi = math.pi / 2
 
 	self._rotationSpeed = 1.916686
-	self._fov = 75.5
 
 	self._heightOffset = 0.12
 	self._frontOffset = 0.05
@@ -29,20 +28,26 @@ function Freelook:__init()
 
 	self._data = nil
 	self._entity = nil
+	
+	self._gameRenderSettings = nil
+	self._changedState = false
 
 	Hooks:Install('Input:PreUpdate', 100, self, self._onInputPreUpdate)
 	Events:Subscribe('Engine:Update', self, self._onUpdate)
 	Events:Subscribe('Level:Destroy', self, self._onLevelDestroy)
+	Events:Subscribe('Level:Loaded', self, self._onLevelLoaded)
 end
 
 function Freelook:enable()
+
+
 	if self._entity ~= nil then
 		return
 	end
 
 	-- Create data for freelook camera entity
 	self._data = CameraEntityData()
-	self._data.fov = self._fov
+	self._data.fov = self._gameRenderSettings.fovMultiplier * 55
 	self._data.enabled = true
 	self._data.priority = 99999
 	self._data.nameId = 'freelook-cam'
@@ -57,6 +62,23 @@ function Freelook:_takeControl()
 	if self._entity ~= nil then
 		self._useFreelook = true
 		self._entity:FireEvent('TakeControl')
+		if self._wentKeyDown then
+			self._wentKeyDown = false
+			self._data.fov = self._gameRenderSettings.fovMultiplier * 55
+			-- Region HideCrosshair
+			local s_clientUIGraphEntityIterator = EntityManager:GetIterator("ClientUIGraphEntity")
+			
+			local s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
+			while s_clientUIGraphEntity do
+				if s_clientUIGraphEntity.data.instanceGuid == Guid('9F8D5FCA-9B2A-484F-A085-AFF309DC5B7A') then
+					s_clientUIGraphEntity = Entity(s_clientUIGraphEntity)
+					s_clientUIGraphEntity:FireEvent('HideCrosshair')
+					return
+				end
+				s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
+			end
+			-- Endregion
+		end
 	end
 end
 
@@ -65,6 +87,22 @@ function Freelook:_releaseControl()
 
 	if self._entity ~= nil then
 		self._entity:FireEvent('ReleaseControl')
+		if self._wentKeyUp then
+			self._wentKeyUp = false
+			-- Region HideCrosshair
+			local s_clientUIGraphEntityIterator = EntityManager:GetIterator("ClientUIGraphEntity")
+			
+			local s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
+			while s_clientUIGraphEntity do
+				if s_clientUIGraphEntity.data.instanceGuid == Guid('9F8D5FCA-9B2A-484F-A085-AFF309DC5B7A') then
+					s_clientUIGraphEntity = Entity(s_clientUIGraphEntity)
+					s_clientUIGraphEntity:FireEvent('ShowCrosshair')
+					return
+				end
+				s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
+			end
+			-- Endregion
+		end
 	end
 end
 
@@ -81,6 +119,20 @@ function Freelook:_onLevelDestroy()
 	self._entity = nil
 	self._freeCamPos = nil
 	self._useFreelook = nil
+	self._gameRenderSettings = nil
+	self._wentKeyDown = false
+	self._wentKeyUp = false
+end
+
+function Freelook:_onLevelLoaded()
+	self._gameRenderSettings = ResourceManager:GetSettings("GameRenderSettings")
+
+	if self._gameRenderSettings ~= nil then
+		self._gameRenderSettings = GameRenderSettings(self._gameRenderSettings)
+	else
+		-- Just in case if we dont get the settings
+		self._gameRenderSettings = { fovMultiplier = 1.36 }
+	end
 end
 
 function Freelook:_onInputPreUpdate(hook, cache, dt)
@@ -101,25 +153,28 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 
 			self._freeCamYaw = player.input.authoritativeAimingYaw
 			self._freeCamPitch = player.input.authoritativeAimingPitch
+			
+			self._wentKeyDown = true
 		end
-	elseif self._useFreelook then
+	elseif self._useFreelook and self._freelookKey ~= InputDeviceKeys.IDK_None and not InputManager:IsKeyDown(self._freelookKey) then
 		self._useFreelook = false
+		
+		self._wentKeyUp = true
 	end
 
 	-- If we are locking then prevent the player from looking around.
 	if self._useFreelook then
 		player:EnableInput(EntryInputActionEnum.EIAYaw, false)
 		player:EnableInput(EntryInputActionEnum.EIAPitch, false)
-
+		
 		if not self._lockYaw then
 			self._authoritativeYaw = self._freeCamYaw
 			self._lockYaw = true
 		end
 
-
 		self:_hideHead(true)
 		self:_takeControl();
-	else
+	elseif self._wentKeyUp then
 		self._lockYaw = false
 		self:_releaseControl();
 		self:_hideHead(false)
