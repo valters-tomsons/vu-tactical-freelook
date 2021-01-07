@@ -69,7 +69,7 @@ function Freelook:_releaseControl()
 end
 
 function Freelook:_onLevelDestroy()
-	self._releaseControl()
+	self:_releaseControl()
 
 	if self._entity == nil then
 		return
@@ -77,6 +77,7 @@ function Freelook:_onLevelDestroy()
 
 	-- Destroy the camera entity.
 	self._entity:Destroy()
+	self._data = nil
 	self._entity = nil
 	self._freeCamPos = nil
 	self._useFreelook = nil
