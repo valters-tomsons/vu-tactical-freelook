@@ -65,19 +65,7 @@ function Freelook:_takeControl()
 		if self._wentKeyDown then
 			self._wentKeyDown = false
 			self._data.fov = self._gameRenderSettings.fovMultiplier * 55
-			-- Region HideCrosshair
-			local s_clientUIGraphEntityIterator = EntityManager:GetIterator("ClientUIGraphEntity")
-			
-			local s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
-			while s_clientUIGraphEntity do
-				if s_clientUIGraphEntity.data.instanceGuid == Guid('9F8D5FCA-9B2A-484F-A085-AFF309DC5B7A') then
-					s_clientUIGraphEntity = Entity(s_clientUIGraphEntity)
-					s_clientUIGraphEntity:FireEvent('HideCrosshair')
-					return
-				end
-				s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
-			end
-			-- Endregion
+			self:_showCrosshair(false)
 		end
 	end
 end
@@ -89,20 +77,26 @@ function Freelook:_releaseControl()
 		self._entity:FireEvent('ReleaseControl')
 		if self._wentKeyUp then
 			self._wentKeyUp = false
-			-- Region HideCrosshair
-			local s_clientUIGraphEntityIterator = EntityManager:GetIterator("ClientUIGraphEntity")
-			
-			local s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
-			while s_clientUIGraphEntity do
-				if s_clientUIGraphEntity.data.instanceGuid == Guid('9F8D5FCA-9B2A-484F-A085-AFF309DC5B7A') then
-					s_clientUIGraphEntity = Entity(s_clientUIGraphEntity)
-					s_clientUIGraphEntity:FireEvent('ShowCrosshair')
-					return
-				end
-				s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
-			end
-			-- Endregion
+			self:_showCrosshair(true)
 		end
+	end
+end
+
+function Freelook:_showCrosshair(visible)
+	local s_clientUIGraphEntityIterator = EntityManager:GetIterator("ClientUIGraphEntity")
+
+	local s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
+	while s_clientUIGraphEntity do
+		if s_clientUIGraphEntity.data.instanceGuid == Guid('9F8D5FCA-9B2A-484F-A085-AFF309DC5B7A') then
+			s_clientUIGraphEntity = Entity(s_clientUIGraphEntity)
+			if visible then
+				s_clientUIGraphEntity:FireEvent('ShowCrosshair')
+			else
+				s_clientUIGraphEntity:FireEvent('HideCrosshair')
+			end
+			return
+		end
+		s_clientUIGraphEntity = s_clientUIGraphEntityIterator:Next()
 	end
 end
 
