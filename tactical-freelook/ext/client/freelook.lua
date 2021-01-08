@@ -17,6 +17,9 @@ function Freelook:__init()
 	self._minPitch = -50.0 * (math.pi / 180.0)
 	self._maxPitch = 80.0 * (math.pi / 180.0)
 
+	-- Limit camera by horizontal axi
+	self._maxYawModifier = 1.25
+
 	self._freeCamYaw = 0.0
 	self._freeCamPitch = 0.0
 	self._freeCamPos = nil
@@ -194,8 +197,8 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 		local rotateYaw = cache[InputConceptIdentifiers.ConceptYaw] * self._rotationSpeed
 		self._freeCamYaw = self._freeCamYaw + rotateYaw
 
-		local minYaw = self._authoritativeYaw - self._halfPi
-		local maxYaw = self._authoritativeYaw + self._halfPi
+		local minYaw = self._authoritativeYaw - (self._maxYawModifier * self._halfPi)
+		local maxYaw = self._authoritativeYaw + (self._maxYawModifier * self._halfPi)
 
 		while self._freeCamYaw < minYaw do
 			self._freeCamYaw = minYaw
