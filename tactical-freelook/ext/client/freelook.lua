@@ -143,6 +143,10 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 		return
 	end
 
+	if player.inVehicle then
+		return
+	end
+
 	-- Check if the player is locking the camera.
 	if self._freelookKey ~= InputDeviceKeys.IDK_None and InputManager:IsKeyDown(self._freelookKey) then
 		if not self._useFreelook and player.input ~= nil then
