@@ -65,14 +65,15 @@ function Freelook:_takeControl(player)
 		self._entity:FireEvent('TakeControl')
 
 		if self._wentKeyDown then
+			self:_hideHead(true, player)
+			self:_showCrosshair(false)
+
 			self._wentKeyDown = false
 			self._data.fov = self._gameRenderSettings.fovMultiplier * 55
 
 			player:EnableInput(EntryInputActionEnum.EIAYaw, false)
 			player:EnableInput(EntryInputActionEnum.EIAPitch, false)
 
-			self:_showCrosshair(false)
-			self:_hideHead(true, player)
 		end
 	end
 end
@@ -84,13 +85,14 @@ function Freelook:_releaseControl(player)
 		self._entity:FireEvent('ReleaseControl')
 
 		if self._wentKeyUp then
+			self:_showCrosshair(true)
+			self:_hideHead(false, player)
+
 			self._wentKeyUp = false
 
 			player:EnableInput(EntryInputActionEnum.EIAYaw, true)
 			player:EnableInput(EntryInputActionEnum.EIAPitch, true)
 
-			self:_showCrosshair(true)
-			self:_hideHead(false, player)
 			self._lockYaw = false
 		end
 	end

@@ -4,7 +4,7 @@
         "faith"
     ],
     "Description": "Move your head independently of your body.",
-    "Version": "1.1.0",
+    "Version": "1.1.1",
     "HasVeniceEXT": true,
     "Tags": [
         "freelook"
