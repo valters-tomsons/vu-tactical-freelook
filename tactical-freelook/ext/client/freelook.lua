@@ -65,7 +65,6 @@ function Freelook:_takeControl(player)
 		self._entity:FireEvent('TakeControl')
 
 		if self._wentKeyDown then
-			self:_hideHead(true, player)
 			self:_showCrosshair(false)
 
 			self._wentKeyDown = false
@@ -73,7 +72,6 @@ function Freelook:_takeControl(player)
 
 			player:EnableInput(EntryInputActionEnum.EIAYaw, false)
 			player:EnableInput(EntryInputActionEnum.EIAPitch, false)
-
 		end
 	end
 end
@@ -186,10 +184,10 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 			self._authoritativeYaw = self._freeCamYaw
 			self._lockYaw = true
 		end
-
-		self:_takeControl(player);
+		self:_takeControl(player)
+		self:_hideHead(true, player)
 	elseif self._wentKeyUp then
-		self:_releaseControl(player);
+		self:_releaseControl(player)
 	end
 
 	if self._useFreelook then
