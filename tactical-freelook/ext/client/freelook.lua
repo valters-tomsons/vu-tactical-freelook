@@ -42,8 +42,6 @@ function Freelook:__init()
 end
 
 function Freelook:enable()
-
-
 	if self._entity ~= nil then
 		return
 	end
@@ -61,41 +59,39 @@ function Freelook:enable()
 	self._entity:Init(Realm.Realm_Client, true)
 end
 
-function Freelook:_takeControl()
+function Freelook:_takeControl(player)
 	if self._entity ~= nil then
 		self._useFreelook = true
 		self._entity:FireEvent('TakeControl')
-
 
 		if self._wentKeyDown then
 			self._wentKeyDown = false
 			self._data.fov = self._gameRenderSettings.fovMultiplier * 55
 
-			self:_showCrosshair(false)
-			self:_hideHead(true)
-
-			local player = PlayerManager:GetLocalPlayer()
 			player:EnableInput(EntryInputActionEnum.EIAYaw, false)
 			player:EnableInput(EntryInputActionEnum.EIAPitch, false)
+
+			self:_showCrosshair(false)
+			self:_hideHead(true, player)
 		end
 	end
 end
 
-function Freelook:_releaseControl()
+function Freelook:_releaseControl(player)
 	self._useFreelook = false
 
 	if self._entity ~= nil then
 		self._entity:FireEvent('ReleaseControl')
+
 		if self._wentKeyUp then
 			self._wentKeyUp = false
 
-			self:_showCrosshair(true)
-			self:_hideHead(false)
-			self._lockYaw = false
-
-			local player = PlayerManager:GetLocalPlayer()
 			player:EnableInput(EntryInputActionEnum.EIAYaw, true)
 			player:EnableInput(EntryInputActionEnum.EIAPitch, true)
+
+			self:_showCrosshair(true)
+			self:_hideHead(false, player)
+			self._lockYaw = false
 		end
 	end
 end
@@ -119,7 +115,8 @@ function Freelook:_showCrosshair(visible)
 end
 
 function Freelook:_onLevelDestroy()
-	self:_releaseControl()
+	local player = PlayerManager:GetLocalPlayer()
+	self:_releaseControl(player)
 
 	if self._entity == nil then
 		return
@@ -160,7 +157,7 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 
 	if player.inVehicle then
 			if self._useFreelook then
-				self:_releaseControl()
+				self:_releaseControl(player)
 			end
 		return
 	end
@@ -188,9 +185,9 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 			self._lockYaw = true
 		end
 
-		self:_takeControl();
+		self:_takeControl(player);
 	elseif self._wentKeyUp then
-		self:_releaseControl();
+		self:_releaseControl(player);
 	end
 
 	if self._useFreelook then
@@ -224,9 +221,7 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 	end
 end
 
-function Freelook:_hideHead(hide)
-	local player = PlayerManager:GetLocalPlayer()
-
+function Freelook:_hideHead(hide, player)
 	if player == nil then
 		return
 	end
