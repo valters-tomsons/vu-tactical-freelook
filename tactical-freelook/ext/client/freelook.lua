@@ -65,10 +65,18 @@ function Freelook:_takeControl()
 	if self._entity ~= nil then
 		self._useFreelook = true
 		self._entity:FireEvent('TakeControl')
+
+
 		if self._wentKeyDown then
 			self._wentKeyDown = false
 			self._data.fov = self._gameRenderSettings.fovMultiplier * 55
+
 			self:_showCrosshair(false)
+			self:_hideHead(true)
+
+			local player = PlayerManager:GetLocalPlayer()
+			player:EnableInput(EntryInputActionEnum.EIAYaw, false)
+			player:EnableInput(EntryInputActionEnum.EIAPitch, false)
 		end
 	end
 end
@@ -80,7 +88,14 @@ function Freelook:_releaseControl()
 		self._entity:FireEvent('ReleaseControl')
 		if self._wentKeyUp then
 			self._wentKeyUp = false
+
 			self:_showCrosshair(true)
+			self:_hideHead(false)
+			self._lockYaw = false
+
+			local player = PlayerManager:GetLocalPlayer()
+			player:EnableInput(EntryInputActionEnum.EIAYaw, true)
+			player:EnableInput(EntryInputActionEnum.EIAPitch, true)
 		end
 	end
 end
@@ -144,6 +159,9 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 	end
 
 	if player.inVehicle then
+			if self._useFreelook then
+				self:_releaseControl()
+			end
 		return
 	end
 
@@ -165,23 +183,14 @@ function Freelook:_onInputPreUpdate(hook, cache, dt)
 
 	-- If we are locking then prevent the player from looking around.
 	if self._useFreelook then
-		player:EnableInput(EntryInputActionEnum.EIAYaw, false)
-		player:EnableInput(EntryInputActionEnum.EIAPitch, false)
-		
 		if not self._lockYaw then
 			self._authoritativeYaw = self._freeCamYaw
 			self._lockYaw = true
 		end
 
-		self:_hideHead(true)
 		self:_takeControl();
 	elseif self._wentKeyUp then
-		self._lockYaw = false
 		self:_releaseControl();
-		self:_hideHead(false)
-
-		player:EnableInput(EntryInputActionEnum.EIAYaw, true)
-		player:EnableInput(EntryInputActionEnum.EIAPitch, true)
 	end
 
 	if self._useFreelook then
